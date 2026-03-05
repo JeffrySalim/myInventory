@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -14,8 +15,8 @@ import java.util.Map;
 @Service
 public class JwtService {
 
-    private final String SECRET_KEY = "rahasia-jangan-bocor-123-jaga-rahasia";
-    private final long EXPIRATION_TIME = 86400000;
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
 
     // Ubah string secret ke object secret
     private SecretKey getSigningKey() {
@@ -31,8 +32,8 @@ public class JwtService {
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(username)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(getSigningKey())
                 .compact();
     }

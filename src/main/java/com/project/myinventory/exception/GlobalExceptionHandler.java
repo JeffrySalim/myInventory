@@ -1,9 +1,10 @@
 package com.project.myinventory.exception;
 
-import com.project.myinventory.dto.ErrorResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,10 +17,22 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String, Object>> handleBadRequest(BadRequestException ex){
+        log.warn("Bad Request : {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleResourceExists(ResourceAlreadyExistsException ex){
-        log.error("Terjadi Duplikasi : {}", ex.getMessage());
+        log.warn("Terjadi Duplikasi : {}", ex.getMessage());
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex){
+        log.warn("Akses ditolak : {}", ex.getMessage());
+        return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -41,16 +54,14 @@ public class GlobalExceptionHandler {
             fieldErrors.put(error.getField(), error.getDefaultMessage());
         });
         log.warn("Validasi Error: {}", fieldErrors);
-        ResponseEntity<Map<String, Object>> responseEntity = buildErrorResponse(
-                "Validasi gagal pada beberapa field", HttpStatus.BAD_REQUEST);
-        if (responseEntity.getBody() != null) {
-            responseEntity.getBody().put("validasi error", fieldErrors);
-        }
-        return responseEntity;
+        ResponseEntity<Map<String, Object>> response = buildErrorResponse("Validasi gagal", HttpStatus.BAD_REQUEST);
+        response.getBody().put("error", fieldErrors);
+        return response;
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex){
+        log.error("Detail Error: ", ex);
         return buildErrorResponse("Terjadi kesalahan sistem internal", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
