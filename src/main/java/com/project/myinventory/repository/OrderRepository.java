@@ -24,4 +24,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Optional<Order> findByOrderIdAndDeletedAtIsNull(Long orderId);
 
+    long countByDeletedAtIsNull();
+    List<Order> findAllByOrderStatusAndDeletedAtIsNull(OrderStatus status);
+
 }

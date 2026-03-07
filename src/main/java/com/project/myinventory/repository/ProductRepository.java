@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -31,5 +32,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Modifying
     @Query("UPDATE Product p SET p.stock = p.stock + :quantity WHERE p.productId = :productId")
     void addStock(@Param("productId") Long productId, @Param("quantity") Integer quantity);
+
+    long countByDeletedAtIsNull();
+    List<Product> findByStockLessThanAndDeletedAtIsNull(Integer stockThreshold);
+
 
 }
