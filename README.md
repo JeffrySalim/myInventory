@@ -76,11 +76,17 @@ src/main/java/com/project/myinventory/
 📈 Alur Bisnis (Business Flow)
 
 Admin mengelola produk dan stok.
+
 User melakukan checkout -> Sistem memotong stok secara otomatis.
+
 User mengunggah bukti pembayaran.
+
 Admin melakukan verifikasi:
+
 Jika Approve: Pesanan selesai, dana masuk ke pendapatan.
+
 Jika Reject: Pesanan batal, stok dikembalikan ke inventori secara otomatis.
+
 Admin memantau performa melalui laporan Top Selling dan Low Stock.
 
 
