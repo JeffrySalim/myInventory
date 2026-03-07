@@ -34,94 +34,40 @@ Other: Lombok, Java Stream API, Jakarta Validation
 📁 Struktur Proyek
 
 src/main/java/com/project/myinventory/
+
 ├── config/         # Konfigurasi Security, JWT, & CORS
+
 ├── controller/     # REST API Endpoints
+
 ├── service/        # Logika Bisnis & Transaksi
+
 ├── repository/     # Akses Database (JPA Repository)
+
 ├── model/
+
 │   ├── entity/     # Database Tables (JPA Entities)
+
 │   └── enums/      # Status (Order, Payment, Role)
+
 ├── dto/            # Data Transfer Objects & Projections
+
 ├── exception/      # Global Exception Handling
+
 └── util/           # Helper Classes
-
-🚀 Instalasi Lokal
-
-Clone repositori:
-
-git clone [https://github.com/username/myinventory.git](https://github.com/username/myinventory.git)
-cd myinventory
-
-
-Konfigurasi Database:
-Buat database MySQL bernama myinventory_db dan sesuaikan src/main/resources/application.properties:
-
-spring.datasource.url=jdbc:mysql://localhost:3306/myinventory_db
-spring.datasource.username=root
-spring.datasource.password=yourpassword
-
-
-Jalankan Aplikasi:
-
-mvn spring-boot:run
 
 🔌 API Endpoints (Ringkasan)
 
-Method
-
-Endpoint
-
-Fungsi
-
-Akses
-
-POST
-
 /api/v1/auth/login
-
-Login & Set Cookie
-
-Public
-
-GET
 
 /api/v1/products
 
-Katalog Produk (Stok > 0)
-
-User/Admin
-
-POST
-
 /api/v1/orders
-
-Checkout Pesanan
-
-User
-
-POST
 
 /api/v1/payments/{id}/upload-proof
 
-Unggah Bukti Bayar
-
-User
-
-POST
-
 /api/v1/admin/payments/{id}/approve
 
-Verifikasi Pembayaran
-
-Admin
-
-GET
-
 /api/v1/admin/reports
-
-Dashboard Analisis
-
-Admin
 
 📈 Alur Bisnis (Business Flow)
 
@@ -132,12 +78,5 @@ Admin melakukan verifikasi:
 Jika Approve: Pesanan selesai, dana masuk ke pendapatan.
 Jika Reject: Pesanan batal, stok dikembalikan ke inventori secara otomatis.
 Admin memantau performa melalui laporan Top Selling dan Low Stock.
-
-
-
-
-
-
-
 
 
