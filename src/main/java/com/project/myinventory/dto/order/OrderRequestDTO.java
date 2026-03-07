@@ -15,5 +15,5 @@ public class OrderRequestDTO {
 
     @NotEmpty(message = "Order tidak boleh kosong")
     @Valid
-    private List<OrderItemRequestDTO> itemRequestDTO;
+    private List<OrderItemRequestDTO> items;
 }

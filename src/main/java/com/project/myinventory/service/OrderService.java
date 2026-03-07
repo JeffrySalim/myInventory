@@ -61,7 +61,7 @@ public class OrderService {
         BigDecimal totalOrder = BigDecimal.ZERO;
         List<OrderItem> itemList = new ArrayList<>();
 
-        for (OrderItemRequestDTO itemRequestDTO : requestDTO.getItemRequestDTO()){
+        for (OrderItemRequestDTO itemRequestDTO : requestDTO.getItems()){
             Product product = productRepository.findByProductIdAndDeletedAtIsNull(itemRequestDTO.getProductId())
                     .orElseThrow(()-> new ResourceNotFoundException("Produk Id " + itemRequestDTO.getProductId()+ " tidak ditemukan"));
 

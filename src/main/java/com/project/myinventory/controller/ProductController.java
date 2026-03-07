@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,9 +26,10 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER')")
     @GetMapping("/products")
-    public ResponseEntity<Page<ProductResponseDTO>> getAvailableProducts(@PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<ProductResponseDTO>> getAvailableProducts(
+            @PageableDefault(page = 0, size = 10) Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProducts(pageable, false));
     }
 
@@ -39,14 +41,15 @@ public class ProductController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/products")
-    public ResponseEntity<Page<ProductResponseDTO>> getAllProductsAdmin(@PageableDefault Pageable pageable) {
+    public ResponseEntity<Page<ProductResponseDTO>> getAllProductsAdmin(
+            @PageableDefault(page = 0, size = 10) Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProducts(pageable, true));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/admin/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductResponseDTO> createProduct(
-            @RequestPart("data") @Valid ProductRequestDTO requestDTO,
+            @ModelAttribute("data") @Valid ProductRequestDTO requestDTO,
             @RequestPart("image") MultipartFile file) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(requestDTO, file));
     }

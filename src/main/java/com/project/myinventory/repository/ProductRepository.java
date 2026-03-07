@@ -21,12 +21,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // User
     Page<Product> findAllByDeletedAtIsNullAndStockGreaterThan(Integer stock, Pageable pageable);
 
+//    Page<Product> findAllByDeletedAtIsNull(Pageable pageable);
+
     Optional<Product> findByProductIdAndDeletedAtIsNull(Long productId);
 
     // Query kurangin stock
     @Modifying
-    @Query("UPDATE Product p SET p.stock = p.stock - :quantity WHERE p.productId = :productId AND p.stock >= :quantity")
-    int deductStock(@Param("productId") Long productId, @Param("quantity") Integer quantity);
+    @Query("UPDATE Product p SET p.stock = p.stock - :qty WHERE p.productId = :id AND p.stock >= :qty AND p.deletedAt IS NULL")
+    int deductStock(@Param("id") Long productId, @Param("qty") Integer quantity);
 
     // Query kembali stock jika order dibatalkan
     @Modifying

@@ -19,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,12 +50,15 @@ public class ProductService {
         return mapToDTO(productRepository.save(product));
     }
 
-    public Page<ProductResponseDTO> getAllProducts(Pageable pageable, boolean isAdmin){
+    public Page<ProductResponseDTO> getAllProducts(Pageable pageable, boolean isAdmin) {
+        Page<Product> productPage;
 
         if (isAdmin) {
-            return productRepository.findAllByDeletedAtIsNull(pageable).map(this::mapToDTO);
-        } return productRepository.findAllByDeletedAtIsNullAndStockGreaterThan(0, pageable).map(this::mapToDTO);
-
+            productPage = productRepository.findAllByDeletedAtIsNull(pageable);
+        } else {
+            productPage = productRepository.findAllByDeletedAtIsNullAndStockGreaterThan(0, pageable);
+        }
+        return productPage.map(this::mapToDTO);
     }
 
     public ProductResponseDTO getProductById(Long id) {
@@ -77,6 +82,7 @@ public class ProductService {
         CategoryResponseDTO categoryResponseDTO = CategoryResponseDTO.builder()
                 .categoryId(product.getCategory().getCategoryId())
                 .categoryName(product.getCategory().getCategoryName())
+                .description(product.getCategory().getDescription())
                 .build();
 
         return ProductResponseDTO.builder()
@@ -90,4 +96,5 @@ public class ProductService {
                 .categoryResponseDTO(categoryResponseDTO)
                 .build();
     }
+
 }
