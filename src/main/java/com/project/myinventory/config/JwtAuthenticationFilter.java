@@ -3,6 +3,7 @@ package com.project.myinventory.config;
 import com.project.myinventory.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -30,38 +31,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // Get Header Authorization
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String username;
+        String jwt = null;
+        String username = null;
 
-        // Cek Format token Bearer
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.info("Request tanpa token terdeteksi untuk URL: {}", request.getRequestURI());
+        // Cek token dari cookie
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()){
+                if ("jwt".equals(cookie.getName())){
+                    jwt = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (jwt == null){
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Ambil token dari bearer
+        // Ambil username dari token
         try {
-            jwt = authHeader.substring(7);
             username = jwtService.extractUsername(jwt);
 
-            // cek username ada tapi user belum di autentikasi
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null){
                 if (jwtService.isTokenValid(jwt, username)){
                     String role = jwtService.extractRole(jwt);
                     SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
-                    // Buat objek autentikasi
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            username,null,List.of(authority)
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            username, null, List.of(authority)
                     );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }
         } catch (Exception e){
-            log.error("Usernamemu tidak bisa: {}", e.getMessage());
+            log.error("Token tidak valid atau kadaluarsa: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);

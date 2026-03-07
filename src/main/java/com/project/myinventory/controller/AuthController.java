@@ -1,12 +1,15 @@
 package com.project.myinventory.controller;
 
 import com.project.myinventory.dto.login.LoginRequestDTO;
+import com.project.myinventory.dto.login.LoginResponseDTO;
 import com.project.myinventory.dto.login.RegisterRequestDTO;
 import com.project.myinventory.dto.login.AuthResponseDTO;
 import com.project.myinventory.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,8 +35,33 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO requestDTO) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO requestDTO) {
         AuthResponseDTO response = authService.login(requestDTO);
-        return ResponseEntity.ok(response);
+
+        ResponseCookie jwtCookie = ResponseCookie.from("jwt", response.getToken())
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(20*60*60)
+                .sameSite("Strict")
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .body(response.getUser());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout() {
+
+        ResponseCookie cleanCookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cleanCookie.toString())
+                .body(Map.of("message", "Berhasil logout"));
     }
 }
